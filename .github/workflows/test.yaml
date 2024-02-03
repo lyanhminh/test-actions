@@ -1,0 +1,30 @@
+name: GitHub Actions Demo
+
+on: [push]
+
+env:
+  AWS_REGION : "us-east-1"
+  AWS_ASSUMED_ROLE: "arn:aws:iam::286962625224:role/github-workflows"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: ${{ env.AWS_ASSUMED_ROLE }} #change to reflect your IAM role’s ARN
+          role-session-name: workflow-tester
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+
