@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name:
 
 on: [push]
 
@@ -26,7 +26,13 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
 
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets..APP_ID }}
+          private-key: ${{ secrets.APP_KEY }}
+
       - run: |
-          git config --global url."https://workflows:${{ secrets.WORKFLOW_KEY }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://workflows:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
       - run: terraform init
 
