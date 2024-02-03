@@ -27,6 +27,6 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
 
       - run: |
-        git config --global url."https://workflows:${{ secrets.WORKFLOW_KEY }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://workflows:${{ secrets.WORKFLOW_KEY }}@github.com/".insteadOf "https://github.com/"
       - run: terraform init
 
