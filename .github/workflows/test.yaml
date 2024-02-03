@@ -32,7 +32,9 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_SECRET }}
 
-      - run: |
-          git config --global url."https://workflows:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
-      - run: terraform init
+      - name: init
+        run: |
+          git config --global url."https://workflows:${{ secrets.WORKFLOW_KEY }}@github.com/".insteadOf "https://github.com/"
+          # git config --global url."https://workflows:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
+          terraform init
 
