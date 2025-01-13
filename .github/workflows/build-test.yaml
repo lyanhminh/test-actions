@@ -32,12 +32,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: false
-          cache-from: ${{ env.CACHE_REGISTRY }}:latest
+          cache-from: type=registry,ref=${{ env.CACHE_REGISTRY }}:latest
           target: builder
 
       - name: Test
         uses: docker/build-push-action@v6
         with:
           push: false
-          cache-from: ${{ env.CACHE_REGISTRY }}:latest
+          cache-from: type=registry,ref=${{ env.CACHE_REGISTRY }}:latest
           target: test
