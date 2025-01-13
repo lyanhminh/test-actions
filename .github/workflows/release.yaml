@@ -53,6 +53,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
+          cache-to: ${{ env.CACHE_REGISTRY }}:latest
           target: builder
           tags: |
             ${{ env.CACHE_REGISTRY }}:${{ env.GH_SHA }}
