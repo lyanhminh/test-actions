@@ -10,7 +10,7 @@ func TestStuff(t *testing.T) {
 	//t.Errorf("testing fail")
 }
 
-func TestStuff(t *testing.T) {
+func TestMoreStuff(t *testing.T) {
 	fmt.Println("passing 2")
 	//t.Errorf("testing fail")
 }
