@@ -3,7 +3,7 @@ FROM golang:1.23 AS builder
 
 WORKDIR /app
 
-COPY *.go go.mod  ./
+COPY main.go go.mod  ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /hello
 
