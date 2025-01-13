@@ -31,7 +31,7 @@ jobs:
           push: false
           target: builder
           tags: |
-            {{ env.REGISTRY }}:${{ env.GH_SHA }}
+            ${{ env.REGISTRY }}:${{ env.GH_SHA }}
 
       - name: Test
         uses: docker/build-push-action@v6
