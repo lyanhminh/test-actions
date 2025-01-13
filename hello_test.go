@@ -7,4 +7,5 @@ import (
 
 func TestStuff(t *testing.T) {
 	fmt.Println("passing")
+	t.Errorf("testing fail")
 }
