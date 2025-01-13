@@ -15,7 +15,7 @@ env:
 
 jobs:
   build-test:
-    uses: .github/workflows/build-test.yaml
+    uses: ./.github/workflows/build-test.yaml
 
   release:
     needs: build-test

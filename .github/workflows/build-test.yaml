@@ -1,9 +1,7 @@
 name: Build Test Docker image
 
 on:
-  # Trigger the action manually from the UI
   workflow_dispatch:
-  # Trigger the action when I create or push a `release/**` branch
   push:
 
 permissions:
@@ -43,4 +41,3 @@ jobs:
           push: false
           cache-from: ${{ env.CACHE_REGISTRY }}:latest
           target: test
-            
