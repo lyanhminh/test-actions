@@ -1,0 +1,47 @@
+name: Build release Docker image
+
+on:
+  # Trigger the action manually from the UI
+  workflow_dispatch:
+  # Trigger the action when I create or push a `release/**` branch
+  push:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  REGISTRY: 286962625224.dkr.ecr.us-east-1.amazonaws.com/actions/hello
+  DOCKER_REGISTRY_URL: myregistry.domain.com
+
+jobs:
+  build_docker_images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          push: false
+          target: builder
+          tags: |
+            "{{ env.REGISTRY }}:${GITHUB_SHA::7}" 
+
+      - name: Test
+        uses: docker/build-push-action@v6
+        with:
+          push: false
+          target: test
+            
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+        with:
+          role-to-assume: arn:aws:iam::286962625224:role/gh-actions
+          aws-region: us-east-1
+
+       - name: Login to Amazon ECR
+         id: login-ecr
+         uses: aws-actions/amazon-ecr-login@v1
