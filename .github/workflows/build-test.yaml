@@ -1,0 +1,46 @@
+name: Build Test Docker image
+
+on:
+  # Trigger the action manually from the UI
+  workflow_dispatch:
+  # Trigger the action when I create or push a `release/**` branch
+  push:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  CACHE_REGISTRY: 286962625224.dkr.ecr.us-east-1.amazonaws.com/actions/hello-cache
+
+jobs:
+  container_image_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+        with:
+          role-to-assume: arn:aws:iam::286962625224:role/gh-actions
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          push: false
+          cache-from: ${{ env.CACHE_REGISTRY }}:latest
+          target: builder
+
+      - name: Test
+        uses: docker/build-push-action@v6
+        with:
+          push: false
+          cache-from: ${{ env.CACHE_REGISTRY }}:latest
+          target: test
+            
