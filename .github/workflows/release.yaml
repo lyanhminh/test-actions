@@ -12,10 +12,9 @@ permissions:
 
 env:
   REGISTRY: 286962625224.dkr.ecr.us-east-1.amazonaws.com/actions/hello
-  DOCKER_REGISTRY_URL: myregistry.domain.com
 
 jobs:
-  build_docker_images:
+  container_image_build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -41,6 +40,6 @@ jobs:
           role-to-assume: arn:aws:iam::286962625224:role/gh-actions
           aws-region: us-east-1
 
-       - name: Login to Amazon ECR
-         id: login-ecr
-         uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
