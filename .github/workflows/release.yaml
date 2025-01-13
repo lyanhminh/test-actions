@@ -53,7 +53,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          target: buider
+          target: builder
           tags: |
             ${{ env.CACHE_REGISTRY }}:${{ env.GH_SHA }}
             ${{ env.CACHE_REGISTRY }}:${{ github.ref_name }}
