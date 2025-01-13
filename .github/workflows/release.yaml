@@ -56,7 +56,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          cache-to: type=registry,ref=${{ env.CACHE_REGISTRY }}:latest
+          cache-to: mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ env.CACHE_REGISTRY }}:latest
           target: builder
           tags: |
             ${{ env.CACHE_REGISTRY }}:${{ env.GH_SHA }}
