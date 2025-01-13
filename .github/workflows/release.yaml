@@ -46,7 +46,7 @@ jobs:
           target: release
           tags: |
             ${{ env.REGISTRY }}:${{ env.GH_SHA }}
-            ${{ env.REGISTRY }}:${{ github.ref }}
+            ${{ env.REGISTRY }}:${{ github.ref_name }}
 
       - name: Cache Update
         uses: docker/build-push-action@v6
@@ -55,5 +55,5 @@ jobs:
           target: buid
           tags: |
             ${{ env.CACHE_REGISTRY }}:${{ env.GH_SHA }}
-            ${{ env.CACHE_REGISTRY }}:${{ github.ref }}
+            ${{ env.CACHE_REGISTRY }}:${{ github.ref_name }}
             ${{ env.CACHE_REGISTRY }}:latest
