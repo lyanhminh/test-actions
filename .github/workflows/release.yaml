@@ -16,7 +16,6 @@ env:
 
 jobs:
   build_docker_images:
-    name: Build Docker Images
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
