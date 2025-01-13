@@ -5,6 +5,8 @@ WORKDIR /app
 COPY main.go go.mod hello_test.go  ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /hello
+RUN apt update && apt install vim -y
+# RUN apt install net-tools -y
 
 # Run the tests in the container
 FROM builder AS test
