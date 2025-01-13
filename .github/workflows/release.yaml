@@ -1,10 +1,9 @@
-name: Build release Docker image
+name: Release Docker image
 
 on:
-  # Trigger the action manually from the UI
-  workflow_dispatch:
-  # Trigger the action when I create or push a `release/**` branch
   push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 permissions:
   id-token: write
@@ -12,9 +11,14 @@ permissions:
 
 env:
   REGISTRY: 286962625224.dkr.ecr.us-east-1.amazonaws.com/actions/hello
+  CACHE_REGISTRY: 286962625224.dkr.ecr.us-east-1.amazonaws.com/actions/hello-cache
 
 jobs:
-  container_image_build:
+  build-test:
+    uses: .github/workflows/build-test.yaml
+
+  release:
+    needs: build-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -24,21 +28,7 @@ jobs:
         shell: bash
         run: |
           echo "GH_SHA=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
-    
-      - name: Build
-        uses: docker/build-push-action@v6
-        with:
-          push: false
-          target: builder
-          tags: |
-            ${{ env.REGISTRY }}:${{ env.GH_SHA }}
 
-      - name: Test
-        uses: docker/build-push-action@v6
-        with:
-          push: false
-          target: test
-            
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
         with:
@@ -48,3 +38,22 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+    
+      - name: Release
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          target: release
+          tags: |
+            ${{ env.REGISTRY }}:${{ env.GH_SHA }}
+            ${{ env.REGISTRY }}:${{ github.ref }}
+
+      - name: Cache Update
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          target: buid
+          tags: |
+            ${{ env.CACHE_REGISTRY }}:${{ env.GH_SHA }}
+            ${{ env.CACHE_REGISTRY }}:${{ github.ref }}
+            ${{ env.CACHE_REGISTRY }}:latest
