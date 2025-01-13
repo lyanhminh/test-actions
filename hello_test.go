@@ -9,3 +9,8 @@ func TestStuff(t *testing.T) {
 	fmt.Println("passing")
 	//t.Errorf("testing fail")
 }
+
+func TestStuff(t *testing.T) {
+	fmt.Println("passing 2")
+	//t.Errorf("testing fail")
+}

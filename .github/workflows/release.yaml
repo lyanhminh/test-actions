@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
 
 permissions:
   id-token: write
@@ -52,7 +53,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          target: buid
+          target: buider
           tags: |
             ${{ env.CACHE_REGISTRY }}:${{ env.GH_SHA }}
             ${{ env.CACHE_REGISTRY }}:${{ github.ref_name }}
