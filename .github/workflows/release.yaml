@@ -20,13 +20,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Declare some variables
+        shell: bash
+        run: |
+          echo "GH_SHA=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+    
       - name: Build
         uses: docker/build-push-action@v6
         with:
           push: false
           target: builder
           tags: |
-            {{ env.REGISTRY }}:${{ GITHUB_SHA::7 }}
+            {{ env.REGISTRY }}:${{ env.GH_SHA }}
 
       - name: Test
         uses: docker/build-push-action@v6
