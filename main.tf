@@ -1,7 +1,3 @@
-variable "name" {}
-
-module "s3" {
-  source = "github.com/lyanhminh/tfm-s3"
-
-  name   = "thing"
+resource "aws_s3_bucket" "example" {
+  bucket = var.name
 }
