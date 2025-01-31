@@ -38,7 +38,7 @@ post = requestify(requests.post)
 delete = requestify(requests.post)
 
 def report_status(repos_added, repos_removed):
-    print(len(GH_PAT))
+    print(len(os.environ["GH_PAT"]))
     added_results = {repo: resp.content for repo, resp in repos_added.items()}
     removed_results = {repo: resp.content for repo, resp in repos_removed.items()}
     failed_adds = {repo: resp.content for repo, resp in repos_added.items() if not response_ok(resp)}
