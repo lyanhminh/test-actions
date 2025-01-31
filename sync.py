@@ -38,18 +38,18 @@ post = requestify(requests.post)
 delete = requestify(requests.post)
 
 def report_status(repos_added, repos_removed):
-    print(len(os.environ["GH_PAT"]))
     added_results = {repo: resp.content for repo, resp in repos_added.items()}
     removed_results = {repo: resp.content for repo, resp in repos_removed.items()}
     failed_adds = {repo: resp.content for repo, resp in repos_added.items() if not response_ok(resp)}
     failed_removes = {repo: resp.content for repo, resp in repos_removed.items() if not response_ok(resp)}
 
+    print("Added results ", added_results)
     print(f"Added repositories {[repo for repo, resp in repos_added.items() if response_ok(resp)]}")
     print(f"Removed repositories {[repo for repo, resp in repos_removed.items() if response_ok(resp)]}")
     print(failed_adds, len(failed_adds))
     print(failed_removes, len(failed_removes))
-    assert len(failed_adds) > 0, f"The following repositories failed to be added {failed_adds}"
     assert len(failed_removes) > 0, f"The following repositories failed to be deleted {failed_removes}"
+    assert len(failed_adds) > 0, f"The following repositories failed to be added {failed_adds}"
 
 
 def main():
