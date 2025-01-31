@@ -41,8 +41,8 @@ def report_status(repos_added, repos_removed):
     print(len(GH_PAT))
     added_results = {repo: resp.content for repo, resp in repos_added.items()}
     removed_results = {repo: resp.content for repo, resp in repos_removed.items()}
-    failed_adds = {repo: resp.content for repo, resp in repos_added.items() if ! response_ok(resp)}
-    failed_removes = {repo: resp.content for repo, resp in repos_removed.items() if ! response_ok(resp)}
+    failed_adds = {repo: resp.content for repo, resp in repos_added.items() if not response_ok(resp)}
+    failed_removes = {repo: resp.content for repo, resp in repos_removed.items() if not response_ok(resp)}
 
     print(f"Added repositories {[repo for repo, resp in added_results.items() if response_ok(resp)]}")
     print(f"Removed repositories {[repo for repo, resp in removed_results.items() if response_ok(resp)]}")
