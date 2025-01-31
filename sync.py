@@ -51,7 +51,7 @@ def good_resp(status_code):
 
 def main():
     # get all allowed repostories for app
-    with open("allowed_repositories") as f:
+    with open(REPOS_FILE) as f:
         approved_repos = f.read().split()
 
     print("Approved repositories: ", approved_repos)
