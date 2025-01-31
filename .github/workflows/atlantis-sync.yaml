@@ -1,0 +1,41 @@
+name: Atlantis allowlist
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  GH_PAT: {{ secrets.GH_PAT}}
+  INSTALLATION_ID: 60202705
+  APP_ID: 1126249
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Get App Installation Access Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          # required
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_SECRET }}
+          
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Sync 
+        env:
+          GH_ACCESS_TOKEN: ${{ steps.app-token.outputs.token}}
+        run: |
+          pip install -r requirements.txt
+          ./sync.py
+
