@@ -29,7 +29,7 @@ def requestify(f):
 
 def get_repo_ids(repos):
     fetched_repos =  { repo: get(f"/repos/{ORG}/{repo}") for repo in repos}
-    repo_ids = { repo: fetched.json()["id"]  if good_response(fetched) else None for repo, fetched in fetched_repos.items()}
+    repo_ids = { repo: fetched.json()["id"]  if response_ok(fetched) else None for repo, fetched in fetched_repos.items()}
     return repo_ids
 
 def issue_app_jwt(secret=""):
@@ -46,7 +46,7 @@ put = requestify(requests.put)
 post = requestify(requests.post)
 delete = requestify(requests.post)
 
-def good_resp(status_code):
+def resp_ok(status_code):
     return status_code < 205
 
 def main():
