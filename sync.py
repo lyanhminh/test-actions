@@ -19,18 +19,19 @@ def get_repo_ids(repos):
 
 def requestify(f):
     user = "atlantis-sync"
-    password = os.environ.get('GH_PAT', "")
-    def inner(endpoint, additional_headers={}):
+    pat_token = os.environ.get('GH_PAT', "")
+    def inner(endpoint, headers={}):
         GH_URL = "https://api.github.com"
         url = GH_URL + endpoint
-        headers = {
+        default_headers = {
                 "Accept": "application/vnd.github+json",
-                "X-GitHub-Api-Version": "2022-11-28"
+                "X-GitHub-Api-Version": "2022-11-28",
+                "Authorization": f"Bearer {pat_token}"
                 }
-        headers.update(additional_headers)
-        print(headers)
-        print(password[-4:])
-        resp = f(url, headers=headers, auth=(user, password))
+        default_headers.update(headers)
+        print(default_headers)
+        print(url)
+        resp = f(url, headers=default_headers)
         return resp
     return inner
 
@@ -45,7 +46,6 @@ def report_status(repos_added, repos_removed):
     failed_adds = {repo: resp.content for repo, resp in repos_added.items() if not response_ok(resp)}
     failed_removes = {repo: resp.content for repo, resp in repos_removed.items() if not response_ok(resp)}
 
-    print("Added results ", added_results)
     print(f"Added repositories {[repo for repo, resp in repos_added.items() if response_ok(resp)]}")
     print(f"Removed repositories {[repo for repo, resp in repos_removed.items() if response_ok(resp)]}")
     print(failed_adds, len(failed_adds))
@@ -55,6 +55,7 @@ def report_status(repos_added, repos_removed):
 
 
 def main():
+    installation_endpoint = f"/user/installations/{INSTALLATION_ID}/repositories/{{}}"
     # get all allowed repostories for app
     with open(REPOS_FILE) as f:
         approved_repos = f.read().split()
@@ -70,13 +71,13 @@ def main():
     missing_repos = set(approved_repos) - set(current_repos)
     missing_repo_ids = get_repo_ids(missing_repos)
     print(f"Missing repo ids {missing_repo_ids}")
-    repos_added = { repo: put("/user/installations/${INSTALLATION_ID}/repositories/${repo_id}") for repo, repo_id in missing_repo_ids.items() if repo_id}
+    repos_added = { repo: put(installation_endpoint.format(repo_id)) for repo, repo_id in missing_repo_ids.items() if repo_id}
 
     # remove any repositories not in approved repositories file
     unapproved_repos = set(current_repos) - set(approved_repos)
     unapproved_repo_ids = get_repo_ids(unapproved_repos)
     print(f"Removing unapproved repositories: {unapproved_repos}")
-    repos_removed = { repo: delete("/user/installations/${INSTALLATION_ID}/repositories/${repo_id}") for repo, repo_id in unapproved_repo_ids.items() if repo_id}
+    repos_removed = { repo: delete(installation_endpoint.format(rep_id)) for repo, repo_id in unapproved_repo_ids.items() if repo_id}
 
     # Check for failures
     report_status(repos_added, repos_removed)
