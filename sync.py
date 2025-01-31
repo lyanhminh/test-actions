@@ -68,7 +68,7 @@ def main():
     repos_removed = { repo: delete("/user/installations/${INSTALLATION_ID}/repositories/${repo_id}") for repo, repo_id in unapproved_repo_ids.items() if repo_id}
 
     # Check for failures
-    post(repos_added, repos_removed)
+    report_status(repos_added, repos_removed)
 
 if __name__ == "__main__":
     main()
