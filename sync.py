@@ -28,8 +28,8 @@ def requestify(f):
     return inner
 
 def get_repo_ids(repos):
-    fetched_missing =  { repo: get(f"/repos/{ORG}/{repo}") for repos in missing}
-    repo_ids = { repo: fetched.json()["id"]  if good_response(fetched) else None for repo, fetched in fetched_missing.items()}
+    fetched_repos =  { repo: get(f"/repos/{ORG}/{repo}") for repo in repos}
+    repo_ids = { repo: fetched.json()["id"]  if good_response(fetched) else None for repo, fetched in fetched_repos.items()}
     return repo_ids
 
 def issue_app_jwt(secret=""):
@@ -58,7 +58,7 @@ def main():
 
     # get current assigned repositories
     current_repos = get("/installation/repositories", {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"})
-    print("Current repositories: ", current_repos)
+    print("Current repositories: ", current_repos.json())
 
     # add any missing repositories
     missing_repos_ids = get_repo_ids(set(approved_repos) - set(current_repos))
