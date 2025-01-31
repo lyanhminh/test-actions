@@ -1,2 +1,2 @@
-tfm-s3
+tf*
 test-actions

@@ -1,5 +1,4 @@
 #/usr/bin/env python3
-
 import os
 import requests
 
@@ -8,6 +7,7 @@ APP_ID = os.environ.get("APP_ID", "")
 REPOS_FILE = "approved-repositories.txt"
 GH_ACCESS_TOKEN = os.environ.get("GH_ACCESS_TOKEN", "")
 ORG = os.environ.get("GH_ORG", "")
+GH_URL = "https://api.github.com"
 
 def response_ok(response):
     return response.status_code < 205
@@ -17,11 +17,16 @@ def get_repo_ids(repos):
     repo_ids = { repo: fetched.json()["id"]  if response_ok(fetched) else None for repo, fetched in fetched_repos.items()}
     return repo_ids
 
+def filter_repos(all_repositories, approved_repositories):
+    approved = []
+    for pattern in approved_repositories:
+        approved += fnmatch.filter(all_repositories, pattern)
+    return list(set(approved))
+
 def requestify(f):
     user = "atlantis-sync"
     pat_token = os.environ.get('GH_PAT', "")
     def inner(endpoint, headers={}):
-        GH_URL = "https://api.github.com"
         url = GH_URL + endpoint
         default_headers = {
                 "Accept": "application/vnd.github+json",
@@ -49,12 +54,29 @@ def report_status(repos_added, repos_removed):
     assert len(failed_removes) == 0, f"The following repositories failed to be deleted {failed_removes}"
     assert len(failed_adds) == 0, f"The following repositories failed to be added {failed_adds}"
 
+def paginate(getter):
+    results = []
+    def inner(endpoint, **kwargs):
+        nonlocal results
+        response = getter(endpoint, **kwargs)
+        print(results)
+        print(response, [ repo["name"] for repo in response.json()], response.links)
+        results += [ repo["name"] for repo in response.json()]
+        if  "next" not in response.links:
+            return results
+        next_endpoint = extract_endpoint(response.links["next"]["url"])
+        return inner(next_endpoint, **kwargs)
+    return inner
+
+def extract_endpoint(url):
+    return url.replace(GH_URL, "")
+
 
 def main():
     installation_endpoint = f"/user/installations/{INSTALLATION_ID}/repositories/{{}}"
     # get all allowed repostories for app
     with open(REPOS_FILE) as f:
-        approved_repos = f.read().split()
+        approved_repository_patterns = f.read().split()
 
     print("Approved repositories: ", approved_repos)
 
@@ -64,8 +86,9 @@ def main():
     print("Current repositories: ", current_repos)
 
     # add any missing repositories
-    all_org_repos = get("/orgs/{ORG}/repos?per_page=5", {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"})
-    print(all_org_repos.json())
+    all_org_repos = paginated(get("/orgs/{ORG}/repos?per_page=5", {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"}))
+    print(all_org_repos)
+    approved_repos = filter_repos(all_org_repos, approved_repository_patterns)
     missing_repos = set(approved_repos) - set(current_repos)
     missing_repo_ids = get_repo_ids(missing_repos)
     print(f"Missing repo ids {missing_repo_ids}")
