@@ -10,6 +10,7 @@ permissions:
 env:
   INSTALLATION_ID: 60202705
   APP_ID: 1126249
+  GH_ORG: lyanhminh
 
 jobs:
   repo-sync:
@@ -25,6 +26,7 @@ jobs:
           # required
           app-id: ${{ env.APP_ID }}
           private-key: ${{ secrets.APP_SECRET }}
+          owner: ${{ env.GH_ORG }}
           
       - name: Set Up Python
         uses: actions/setup-python@v5
