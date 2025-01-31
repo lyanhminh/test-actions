@@ -18,8 +18,8 @@ def get_repo_ids(repos):
     return repo_ids
 
 def requestify(f):
-    session = requests.Session()
-    session.auth = ('user', os.environ['GH_PAT'])
+    user = "atlantis-sync"
+    password = os.environ.get('GH_PAT', "")
     def inner(endpoint, additional_headers={}):
         GH_URL = "https://api.github.com"
         url = GH_URL + endpoint
@@ -28,7 +28,9 @@ def requestify(f):
                 "X-GitHub-Api-Version": "2022-11-28"
                 }
         headers.update(additional_headers)
-        resp = f(url, headers=headers)
+        print(headers)
+        print(password[-4:])
+        resp = f(url, headers=headers, auth=(user, password))
         return resp
     return inner
 
