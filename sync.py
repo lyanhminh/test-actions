@@ -46,10 +46,8 @@ def report_status(repos_added, repos_removed):
 
     print(f"Added repositories {[repo for repo, resp in repos_added.items() if response_ok(resp)]}")
     print(f"Removed repositories {[repo for repo, resp in repos_removed.items() if response_ok(resp)]}")
-    print(failed_adds, len(failed_adds))
-    print(failed_removes, len(failed_removes))
-    assert len(failed_removes) > 0, f"The following repositories failed to be deleted {failed_removes}"
-    assert len(failed_adds) > 0, f"The following repositories failed to be added {failed_adds}"
+    assert len(failed_removes) != 0, f"The following repositories failed to be deleted {failed_removes}"
+    assert len(failed_adds) != 0, f"The following repositories failed to be added {failed_adds}"
 
 
 def main():
@@ -67,7 +65,7 @@ def main():
 
     # add any missing repositories
     all_org_repos = get("/orgs/{ORG}/repos?per_page=5")
-    all_org_repos.json()
+    print(all_org_repos.json())
     missing_repos = set(approved_repos) - set(current_repos)
     missing_repo_ids = get_repo_ids(missing_repos)
     print(f"Missing repo ids {missing_repo_ids}")
