@@ -46,7 +46,7 @@ put = requestify(requests.put)
 post = requestify(requests.post)
 delete = requestify(requests.post)
 
-def resp_ok(status_code):
+def response_ok(status_code):
     return status_code < 205
 
 def main():
