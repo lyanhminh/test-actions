@@ -58,7 +58,7 @@ def main():
 
     # get current assigned repositories
     current_repos = get("/installation/repositories", {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"})
-    print("Current repositories: ", current_repositories)
+    print("Current repositories: ", current_repos)
 
     # add any missing repositories
     missing_repos_ids = get_repo_ids(set(approved_repos) - set(current_repos))
