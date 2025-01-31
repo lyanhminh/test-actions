@@ -46,8 +46,8 @@ def report_status(repos_added, repos_removed):
 
     print(f"Added repositories {[repo for repo, resp in added_results.items() if response_ok(resp)]}")
     print(f"Removed repositories {[repo for repo, resp in removed_results.items() if response_ok(resp)]}")
-    assert len((failed_adds) != 0, f"The following repositories failed to be added {failed_adds}"
-    assert len((failed_removes) != 0, f"The following repositories failed to be deleted {failed_removes}"
+    assert len(failed_adds) != 0, f"The following repositories failed to be added {failed_adds}"
+    assert len(failed_removes) != 0, f"The following repositories failed to be deleted {failed_removes}"
 
 
 def main():
