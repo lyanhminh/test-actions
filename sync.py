@@ -3,11 +3,11 @@
 import os
 import requests
 
-INSTALLATION_ID = os.environ["INSTALLATION_ID"]
-APP_ID = os.environ["APP_ID"]
+INSTALLATION_ID = os.environ.get("INSTALLATION_ID", "")
+APP_ID = os.environ.get("APP_ID", "")
 REPOS_FILE = "approved-repositories.txt"
-GH_ACCESS_TOKEN = os.environ["GH_ACCESS_TOKEN"]
-ORG = os.environ["GH_ORG"]
+GH_ACCESS_TOKEN = os.environ.get("GH_ACCESS_TOKEN", "")
+ORG = os.environ.get("GH_ORG", "")
 
 def response_ok(response):
     return response.status_code < 205
@@ -44,8 +44,8 @@ def report_status(repos_added, repos_removed):
     failed_adds = {repo: resp.content for repo, resp in repos_added.items() if not response_ok(resp)}
     failed_removes = {repo: resp.content for repo, resp in repos_removed.items() if not response_ok(resp)}
 
-    print(f"Added repositories {[repo for repo, resp in added_results.items() if response_ok(resp)]}")
-    print(f"Removed repositories {[repo for repo, resp in removed_results.items() if response_ok(resp)]}")
+    print(f"Added repositories {[repo for repo, resp in repos_added.items() if response_ok(resp)]}")
+    print(f"Removed repositories {[repo for repo, resp in repos_removed.items() if response_ok(resp)]}")
     assert len(failed_adds) != 0, f"The following repositories failed to be added {failed_adds}"
     assert len(failed_removes) != 0, f"The following repositories failed to be deleted {failed_removes}"
 
