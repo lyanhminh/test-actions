@@ -8,7 +8,6 @@ permissions:
   contents: read
 
 env:
-  GH_PAT: {{ secrets.GH_PAT}}
   INSTALLATION_ID: 60202705
   APP_ID: 1126249
 
@@ -35,6 +34,7 @@ jobs:
       - name: Sync 
         env:
           GH_ACCESS_TOKEN: ${{ steps.app-token.outputs.token}}
+          GH_PAT: {{ secrets.GH_PAT}}
         run: |
           pip install -r requirements.txt
           ./sync.py
