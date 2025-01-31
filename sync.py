@@ -67,6 +67,7 @@ def main():
     # add any missing repositories
     missing_repos = set(approved_repos) - set(current_repos)
     missing_repo_ids = get_repo_ids(missing_repos)
+    print(f"Missing repo ids {missing_repo_ids}")
     repos_added = { repo: put("/user/installations/${INSTALLATION_ID}/repositories/${repo_id}") for repo, repo_id in missing_repo_ids.items() if repo_id}
 
     # remove any repositories not in approved repositories file
