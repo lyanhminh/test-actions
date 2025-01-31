@@ -58,7 +58,7 @@ def main():
 
     # get current assigned repositories
     current_repos_resp = get("/installation/repositories", {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"}).json()
-    current_repos = [ repo.name for repo in current_repos_resp["repositories"]]
+    current_repos = [ repo["name"] for repo in current_repos_resp["repositories"]]
     print("Current repositories: ", current_repos)
 
     # add any missing repositories
