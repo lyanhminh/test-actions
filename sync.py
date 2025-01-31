@@ -77,7 +77,7 @@ def main():
     unapproved_repos = set(current_repos) - set(approved_repos)
     unapproved_repo_ids = get_repo_ids(unapproved_repos)
     print(f"Removing unapproved repositories: {unapproved_repos}")
-    repos_removed = { repo: delete(installation_endpoint.format(rep_id)) for repo, repo_id in unapproved_repo_ids.items() if repo_id}
+    repos_removed = { repo: delete(installation_endpoint.format(repo_id)) for repo, repo_id in unapproved_repo_ids.items() if repo_id}
 
     # Check for failures
     report_status(repos_added, repos_removed)
