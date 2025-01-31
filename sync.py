@@ -9,7 +9,7 @@ INSTALLATION_ID = os.environ["INSTALLATION_ID"]
 APP_ID = os.environ["APP_ID"]
 REPOS_FILE = "approved-repositories.txt"
 GH_ACCESS_TOKEN = os.environ["GH_ACCESS_TOKEN"]
-ORG = "lyanhminh"
+ORG = os.environ["GH_ORG"]
 
 def requestify(f):
     session = requests.Session()
@@ -61,12 +61,12 @@ def main():
     print("Current repositories: ", current_repositories)
 
     # add any missing repositories
-     missing_repos_ids = get_repo_ids(set(approved_repos) - set(current_repos))
-     repos_added = { repo: put("/user/installations/${INSTALLATION_ID}/repositories/${repo_id}") for repo, repo_id in missing_repo_ids.items() if repo_id}
+    missing_repos_ids = get_repo_ids(set(approved_repos) - set(current_repos))
+    repos_added = { repo: put("/user/installations/${INSTALLATION_ID}/repositories/${repo_id}") for repo, repo_id in missing_repo_ids.items() if repo_id}
 
     # remove any repositories not in approved repositories file
     unapproved_repo_ids = get_repo_ids(set(current_repos) - set(approved_repos))
-    repos_removed = { repo: delete("/user/installations/${INSTALLATION_ID}/repositories/${repo_id}") for repo, repo_id in unapproved_repo_ids if repo_id)
+    repos_removed = { repo: delete("/user/installations/${INSTALLATION_ID}/repositories/${repo_id}") for repo, repo_id in unapproved_repo_ids if repo_id}
 
     # Check for failures
     # assert len((failed_gets := [repo for repo in add_list if not add_list[repo]]) != 0, f"Not all repositories in allow list were retrieved"
