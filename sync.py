@@ -29,8 +29,6 @@ def requestify(f):
                 "Authorization": f"Bearer {pat_token}"
                 }
         default_headers.update(headers)
-        print(default_headers)
-        print(url)
         resp = f(url, headers=default_headers)
         return resp
     return inner
@@ -38,7 +36,7 @@ def requestify(f):
 get = requestify(requests.get)
 put = requestify(requests.put)
 post = requestify(requests.post)
-delete = requestify(requests.post)
+delete = requestify(requests.delete)
 
 def report_status(repos_added, repos_removed):
     added_results = {repo: resp.content for repo, resp in repos_added.items()}
@@ -68,6 +66,8 @@ def main():
     print("Current repositories: ", current_repos)
 
     # add any missing repositories
+    all_org_repos = get("/orgs/{ORG}/repos?per_page=5")
+    all_org_repos.json()
     missing_repos = set(approved_repos) - set(current_repos)
     missing_repo_ids = get_repo_ids(missing_repos)
     print(f"Missing repo ids {missing_repo_ids}")
