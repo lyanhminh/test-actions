@@ -23,7 +23,7 @@ jobs:
         id: app-token
         with:
           # required
-          app-id: ${{ vars.APP_ID }}
+          app-id: ${{ env.APP_ID }}
           private-key: ${{ secrets.APP_SECRET }}
           
       - name: Set Up Python
