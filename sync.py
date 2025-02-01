@@ -45,8 +45,6 @@ def paginate(getter):
     def inner(endpoint, **kwargs):
         nonlocal results
         response = getter(endpoint, **kwargs)
-        print(response.status_code)
-        print(response.json())
         results += [ repo["name"] for repo in response.json()]
         if  "next" not in response.links:
             return results
