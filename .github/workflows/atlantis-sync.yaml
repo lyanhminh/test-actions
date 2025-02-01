@@ -8,9 +8,9 @@ permissions:
   contents: read
 
 env:
-  GH_PAT: {{ secrets.GH_PAT}}
   INSTALLATION_ID: 60202705
   APP_ID: 1126249
+  GH_ORG: lyanhminh
 
 jobs:
   repo-sync:
@@ -24,18 +24,23 @@ jobs:
         id: app-token
         with:
           # required
-          app-id: ${{ vars.APP_ID }}
+          app-id: ${{ env.APP_ID }}
           private-key: ${{ secrets.APP_SECRET }}
+          owner: ${{ env.GH_ORG }}
           
       - name: Set Up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Sync 
-        env:
-          GH_ACCESS_TOKEN: ${{ steps.app-token.outputs.token}}
+      - name: Prep
         run: |
           pip install -r requirements.txt
-          ./sync.py
 
+      - name: Run Sync
+        env:
+          GH_ACCESS_TOKEN: ${{ steps.app-token.outputs.token}}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          pip install -r requirements.txt
+          python3 ./sync.py
