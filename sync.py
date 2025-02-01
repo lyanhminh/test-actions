@@ -1,5 +1,6 @@
 #/usr/bin/env python3
 import os
+from fnmatch import fnmatch
 import requests
 
 INSTALLATION_ID = os.environ.get("INSTALLATION_ID", "")
@@ -17,10 +18,11 @@ def get_repo_ids(repos):
     repo_ids = { repo: fetched.json()["id"]  if response_ok(fetched) else None for repo, fetched in fetched_repos.items()}
     return repo_ids
 
-def filter_repos(all_repositories, approved_repositories):
+def filter_repos(all_repos, approved_repository_patterns):
     approved = []
-    for pattern in approved_repositories:
-        approved += fnmatch.filter(all_repositories, pattern)
+    for pattern in approved_repository_patterns:
+        approved += [*filter(lambda repo: fnmatch(repo, pattern), all_repos)]
+        print(pattern, approved)
     return list(set(approved))
 
 def requestify(f):
@@ -38,29 +40,11 @@ def requestify(f):
         return resp
     return inner
 
-get = requestify(requests.get)
-put = requestify(requests.put)
-post = requestify(requests.post)
-delete = requestify(requests.delete)
-
-def report_status(repos_added, repos_removed):
-    added_results = {repo: resp.content for repo, resp in repos_added.items()}
-    removed_results = {repo: resp.content for repo, resp in repos_removed.items()}
-    failed_adds = {repo: resp.content for repo, resp in repos_added.items() if not response_ok(resp)}
-    failed_removes = {repo: resp.content for repo, resp in repos_removed.items() if not response_ok(resp)}
-
-    print(f"Added repositories {[repo for repo, resp in repos_added.items() if response_ok(resp)]}")
-    print(f"Removed repositories {[repo for repo, resp in repos_removed.items() if response_ok(resp)]}")
-    assert len(failed_removes) == 0, f"The following repositories failed to be deleted {failed_removes}"
-    assert len(failed_adds) == 0, f"The following repositories failed to be added {failed_adds}"
-
 def paginate(getter):
     results = []
     def inner(endpoint, **kwargs):
         nonlocal results
         response = getter(endpoint, **kwargs)
-        print(results)
-        print(response, [ repo["name"] for repo in response.json()], response.links)
         results += [ repo["name"] for repo in response.json()]
         if  "next" not in response.links:
             return results
@@ -71,24 +55,33 @@ def paginate(getter):
 def extract_endpoint(url):
     return url.replace(GH_URL, "")
 
+get = requestify(requests.get)
+get = paginate(get)
+put = requestify(requests.put)
+post = requestify(requests.post)
+delete = requestify(requests.delete)
+
 
 def main():
     installation_endpoint = f"/user/installations/{INSTALLATION_ID}/repositories/{{}}"
-    # get all allowed repostories for app
+    app_auth_header = {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"}
+
+    # get all allowed repository patterns for app
     with open(REPOS_FILE) as f:
         approved_repository_patterns = f.read().split()
-
-    print("Approved repositories: ", approved_repos)
+    print("Approved repository patterns: ", approved_repository_patterns)
 
     # get current assigned repositories to the app installation
-    current_repos_resp = get("/installation/repositories", {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"}).json()
+    current_repos_resp = get("/installation/repositories", app_auth_header).json()
     current_repos = [ repo["name"] for repo in current_repos_resp["repositories"]]
     print("Current repositories: ", current_repos)
 
-    # add any missing repositories
-    all_org_repos = paginated(get("/orgs/{ORG}/repos?per_page=5", {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"}))
-    print(all_org_repos)
+    # determine final repository list
+    all_org_repos = get("/orgs/{ORG}/repos?per_page=5", app_auth_header)
     approved_repos = filter_repos(all_org_repos, approved_repository_patterns)
+    print(approved_repos)
+
+    # add missing repositories not yet currently assigned to the app 
     missing_repos = set(approved_repos) - set(current_repos)
     missing_repo_ids = get_repo_ids(missing_repos)
     print(f"Missing repo ids {missing_repo_ids}")
@@ -100,9 +93,17 @@ def main():
     print(f"Removing unapproved repositories: {unapproved_repos}")
     repos_removed = { repo: delete(installation_endpoint.format(repo_id)) for repo, repo_id in unapproved_repo_ids.items() if repo_id}
 
-    # Check for failures
-    report_status(repos_added, repos_removed)
+    # report job results
+    added_results = {repo: resp.content for repo, resp in repos_added.items()}
+    removed_results = {repo: resp.content for repo, resp in repos_removed.items()}
+    failed_adds = {repo: resp.content for repo, resp in repos_added.items() if not response_ok(resp)}
+    failed_removes = {repo: resp.content for repo, resp in repos_removed.items() if not response_ok(resp)}
+
+    print(f"Added repositories {[repo for repo, resp in repos_added.items() if response_ok(resp)]}")
+    print(f"Removed repositories {[repo for repo, resp in repos_removed.items() if response_ok(resp)]}")
+    assert len(failed_removes) == 0, f"The following repositories failed to be deleted {failed_removes}"
+    assert len(failed_adds) == 0, f"The following repositories failed to be added {failed_adds}"
+
 
 if __name__ == "__main__":
     main()
-
