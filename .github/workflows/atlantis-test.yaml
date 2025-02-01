@@ -1,10 +1,7 @@
-name: Atlantis Sync
+name: Atlantis Test
 
 on:
   workflow_dispatch:
-
-env:
-  GH_ORG: lyanhminh
 
 jobs:
   repo-sync:
