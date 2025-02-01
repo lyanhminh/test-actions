@@ -45,6 +45,8 @@ def paginate(getter):
     def inner(endpoint, **kwargs):
         nonlocal results
         response = getter(endpoint, **kwargs)
+        print(response.status_code)
+        print(response.json())
         results += [ repo["name"] for repo in response.json()]
         if  "next" not in response.links:
             return results
@@ -78,6 +80,7 @@ def main():
 
     # determine final repository list
     all_org_repos = getp("/orgs/{ORG}/repos?per_page=5", headers=app_auth_header)
+    #all_org_repos = getp("/user/repos?per_page=5", headers=app_auth_header)
     approved_repos = filter_repos(all_org_repos, approved_repository_patterns)
     print(approved_repos)
 
