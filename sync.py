@@ -5,10 +5,10 @@ import requests
 
 INSTALLATION_ID = os.environ.get("INSTALLATION_ID", "")
 APP_ID = os.environ.get("APP_ID", "")
-REPOS_FILE = "approved-repositories.txt"
 GH_ACCESS_TOKEN = os.environ.get("GH_ACCESS_TOKEN", "")
 ORG = os.environ.get("GH_ORG", "")
 GH_URL = "https://api.github.com"
+REPOS_FILE = "approved-repositories.txt"
 
 def response_ok(response):
     return response.status_code < 205
@@ -61,7 +61,6 @@ put = requestify(requests.put)
 post = requestify(requests.post)
 delete = requestify(requests.delete)
 
-
 def main():
     installation_endpoint = f"/user/installations/{INSTALLATION_ID}/repositories/{{}}"
     app_auth_header = {"Authorization": f"Bearer {GH_ACCESS_TOKEN}"}
@@ -85,8 +84,8 @@ def main():
     # add missing repositories not yet currently assigned to the app 
     missing_repos = set(approved_repos) - set(current_repos)
     missing_repo_ids = get_repo_ids(missing_repos)
-    print(f"Missing repo ids {missing_repo_ids}")
     repos_added = { repo: put(installation_endpoint.format(repo_id)) for repo, repo_id in missing_repo_ids.items() if repo_id}
+    print(f"Missing repo ids {missing_repo_ids}")
 
     # remove any repositories not in approved repositories file
     unapproved_repos = set(current_repos) - set(approved_repos)

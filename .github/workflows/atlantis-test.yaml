@@ -1,0 +1,27 @@
+name: Atlantis Sync
+
+on:
+  workflow_dispatch:
+
+env:
+  GH_ORG: lyanhminh
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Prep
+        run: |
+          pip install -r requirements.txt
+
+      - name: Test
+        run: |
+          pytest test_sync.py
