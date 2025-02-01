@@ -80,7 +80,7 @@ def main():
 
     # determine final repository list
     #all_org_repos = getp("/orgs/{ORG}/repos?per_page=5", headers=app_auth_header)
-    all_org_repos = getp("/user/repos?per_page=5", headers=app_auth_header)
+    all_org_repos = getp("/user/repos?per_page=5" )
     approved_repos = filter_repos(all_org_repos, approved_repository_patterns)
     print(approved_repos)
 
