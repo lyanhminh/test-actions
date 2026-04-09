@@ -1,3 +1,0 @@
-tf*
-test-actions
-*aws*

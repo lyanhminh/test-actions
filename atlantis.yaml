@@ -1,0 +1,68 @@
+version: 3
+automerge: true
+delete_source_branch_on_merge: true
+
+# Custom workflows for sequential promotion
+workflows:
+  qa-workflow:
+    plan:
+      steps: [init, plan]
+    apply:
+      steps:
+        - apply
+        - run: |
+            echo "QA Apply success. Triggering test-qa GHA..."
+            curl -s -X POST \
+              -H "Authorization: token ${ATLANTIS_GH_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${BASE_REPO_OWNER}/${BASE_REPO_NAME}/actions/workflows/test-qa.yml/dispatches \
+              -d "{\"ref\":\"${HEAD_BRANCH_NAME}\", \"inputs\": {\"pr_number\": \"${PULL_NUM}\", \"repo\": \"${BASE_REPO_OWNER}/${BASE_REPO_NAME}\"}}"
+        - run: |
+            echo "Tests triggered. Cleaning up ephemeral QA infrastructure..."
+            terraform destroy -auto-approve
+
+  integration-workflow:
+    plan:
+      steps: [init, plan]
+    apply:
+      steps:
+        - apply
+        - run: |
+            echo "Integration Apply success. Running local validation script..."
+            ./scripts/test-integration.sh
+
+  production-workflow:
+    plan:
+      steps: [init, plan]
+    apply:
+      steps: [apply]
+
+projects:
+  - name: qa
+    dir: qa
+    terraform_version: v1.11.1
+    workflow: qa-workflow
+    autoplan:
+      when_modified: ["qa/*.tf", "modules/**/*.tf"]
+      enabled: true
+    apply_requirements: [mergeable]
+
+  - name: integration
+    dir: integration
+    terraform_version: v1.11.1
+    workflow: integration-workflow
+    autoplan:
+      when_modified: ["integration/*.tf", "modules/**/*.tf"]
+      enabled: true
+    apply_requirements: [mergeable]
+    depends_on: [qa]
+
+  - name: production
+    dir: production
+    terraform_version: v1.11.1
+    workflow: production-workflow
+    autoplan:
+      when_modified: ["production/*.tf", "modules/**/*.tf"]
+      enabled: true
+    apply_requirements: [approved, mergeable]
+    depends_on: [integration]
