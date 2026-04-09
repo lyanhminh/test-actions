@@ -19,7 +19,7 @@ jobs:
           sleep 5
           echo "✅ QA Tests Passed"
 
-      - name: Trigger Integration Apply
+      - name: Trigger Integration Plan
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
@@ -27,4 +27,15 @@ jobs:
             -H "Authorization: token $GH_PAT" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.event.inputs.repo }}/issues/${{ github.event.inputs.pr_number }}/comments \
-            -d "{\"body\": \"atlantis apply -p integration\"}"
+            -d "{\"body\": \"atlantis plan -p integration\"}" > /dev/null
+
+      - name: Trigger Integration Apply
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          sleep 5
+          curl -s -X POST \
+            -H "Authorization: token $GH_PAT" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.event.inputs.repo }}/issues/${{ github.event.inputs.pr_number }}/comments \
+            -d "{\"body\": \"atlantis apply -p integration\"}" > /dev/null
