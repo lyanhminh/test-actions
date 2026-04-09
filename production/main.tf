@@ -1,5 +1,5 @@
 module "service" {
-  source = "https://github.com/lyanhminh/test-actions//ecs?ref=0.0.1"
+  source = "github.com/lyanhminh/test-actions//modules/ecs?ref=0.0.1"
 
-  var = "production"
+  environment = "production"
 } 
