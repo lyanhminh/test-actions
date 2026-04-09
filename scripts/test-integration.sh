@@ -12,4 +12,4 @@ curl -s -X POST \
   -H "Authorization: token ${ATLANTIS_GH_TOKEN}" \
   -H "Accept: application/vnd.github.v3+json" \
   https://api.github.com/repos/${BASE_REPO_OWNER}/${BASE_REPO_NAME}/issues/${PULL_NUM}/comments \
-  -d "{\"body\": \"atlantis plan -p production\"}"
+  -d "{\"body\": \"atlantis plan -p production\"}" > /dev/null
