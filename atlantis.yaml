@@ -16,7 +16,7 @@ workflows:
               -H "Authorization: token ${ATLANTIS_GH_TOKEN}" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${BASE_REPO_OWNER}/${BASE_REPO_NAME}/actions/workflows/test-qa.yml/dispatches \
-              -d "{\"ref\":\"${HEAD_BRANCH_NAME}\", \"inputs\": {\"pr_number\": \"${PULL_NUM}\", \"repo\": \"${BASE_REPO_OWNER}/${BASE_REPO_NAME}\"}}"
+              -d "{\"ref\":\"${HEAD_BRANCH_NAME}\", \"inputs\": {\"pr_number\": \"${PULL_NUM}\", \"repo\": \"${BASE_REPO_OWNER}/${BASE_REPO_NAME}\"}}" > /dev/null
         - run: |
             echo "Tests triggered. Cleaning up ephemeral QA infrastructure..."
             terraform destroy -auto-approve
@@ -29,7 +29,7 @@ workflows:
         - apply
         - run: |
             echo "Integration Apply success. Running local validation script..."
-            ./scripts/test-integration.sh
+            $(pwd)/../scripts/test-integration.sh
 
   production-workflow:
     plan:
@@ -43,7 +43,6 @@ projects:
     terraform_version: v1.11.1
     workflow: qa-workflow
     autoplan:
-      when_modified: ["qa/*.tf", "modules/**/*.tf"]
       enabled: true
     apply_requirements: [mergeable]
 
@@ -52,7 +51,6 @@ projects:
     terraform_version: v1.11.1
     workflow: integration-workflow
     autoplan:
-      when_modified: ["integration/*.tf", "modules/**/*.tf"]
       enabled: true
     apply_requirements: [mergeable]
     depends_on: [qa]
@@ -62,7 +60,7 @@ projects:
     terraform_version: v1.11.1
     workflow: production-workflow
     autoplan:
-      when_modified: ["production/*.tf", "modules/**/*.tf"]
       enabled: true
-    apply_requirements: [approved, mergeable]
+    #apply_requirements: [approved, mergeable]
+    apply_requirements: [mergeable]
     depends_on: [integration]

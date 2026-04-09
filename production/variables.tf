@@ -1,0 +1,3 @@
+variable "text" {
+  default = "olly"
+}
