@@ -16,7 +16,7 @@ workflows:
               -H "Authorization: token ${ATLANTIS_GH_TOKEN}" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${BASE_REPO_OWNER}/${BASE_REPO_NAME}/actions/workflows/test-qa.yml/dispatches \
-              -d "{\"ref\":\"${HEAD_BRANCH_NAME}\", \"inputs\": {\"pr_number\": \"${PULL_NUM}\", \"repo\": \"${BASE_REPO_OWNER}/${BASE_REPO_NAME}\"}}"
+              -d "{\"ref\":\"${HEAD_BRANCH_NAME}\", \"inputs\": {\"pr_number\": \"${PULL_NUM}\", \"repo\": \"${BASE_REPO_OWNER}/${BASE_REPO_NAME}\"}}" > /dev/null
         - run: |
             echo "Tests triggered. Cleaning up ephemeral QA infrastructure..."
             terraform destroy -auto-approve
