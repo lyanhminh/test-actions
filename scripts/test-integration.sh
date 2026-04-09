@@ -8,6 +8,7 @@ echo "✅ Integration Tests Passed"
 
 # Trigger Production Plan via GitHub API (since we aren't using GHA for this step)
 echo "Triggering Production Plan..."
+exit 1
 curl -s -X POST \
   -H "Authorization: token ${ATLANTIS_GH_TOKEN}" \
   -H "Accept: application/vnd.github.v3+json" \
