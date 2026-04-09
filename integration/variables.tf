@@ -1,3 +1,3 @@
 variable "text" {
-  default = "nelly"
+  default = "nelly on ecs"
 }

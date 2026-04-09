@@ -1,3 +1,3 @@
 variable "text" {
-  default = "olly on eks"
+  default = "olly on ecs"
 }
