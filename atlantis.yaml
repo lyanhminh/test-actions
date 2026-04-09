@@ -49,8 +49,6 @@ projects:
     dir: integration
     terraform_version: v1.11.1
     workflow: integration-workflow
-    autoplan:
-      enabled: true
     apply_requirements: [mergeable]
     depends_on: [qa]
 
@@ -58,8 +56,6 @@ projects:
     dir: production
     terraform_version: v1.11.1
     workflow: production-workflow
-    autoplan:
-      enabled: true
     #apply_requirements: [approved, mergeable]
     apply_requirements: [mergeable]
     depends_on: [integration]
