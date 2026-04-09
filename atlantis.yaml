@@ -2,7 +2,6 @@ version: 3
 automerge: true
 delete_source_branch_on_merge: true
 
-# Custom workflows for sequential promotion
 workflows:
   qa-workflow:
     plan:
