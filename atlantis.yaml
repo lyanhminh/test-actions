@@ -29,7 +29,7 @@ workflows:
         - apply
         - run: |
             echo "Integration Apply success. Running local validation script..."
-            ./scripts/test-integration.sh
+            $(pwd)/../scripts/test-integration.sh
 
   production-workflow:
     plan:
