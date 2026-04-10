@@ -8,41 +8,44 @@ on:
         default: 'latest'
 
 jobs:
-  qa-ephemeral:
-    name: "QA: Apply -> Test -> Destroy"
+  qa-deploy:
+    name: "QA: Deploy"
+    uses: ./.github/workflows/terraform-base.yaml
+    with:
+      directory: ./qa
+      environment: qa
+      operation: apply
+      build_tag: ${{ github.event.inputs.build_tag }}
+      role_arn: arn:aws:iam::123456789:role/github-actions-qa
+
+  qa-test:
+    name: "QA: Run Smoke Tests"
+    needs: qa-deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Deploy QA
-        uses: ./.github/workflows/terraform-base.yml
-        with:
-          directory: ./qa
-          environment: qa
-          operation: apply
-          build_tag: ${{ github.event.inputs.build_tag }}
-          role_arn: arn:aws:iam::123456789:role/github-actions-qa
 
       - name: Run Smoke Tests
         run: |
           chmod +x ./automated-tests/endpoint-checker.sh
           ./automated-tests/endpoint-checker.sh qa
 
-      - name: Destroy QA
-        if: always()
-        uses: ./.github/workflows/terraform-base.yml
-        with:
-          directory: ./qa
-          environment: qa
-          operation: destroy
-          build_tag: ${{ github.event.inputs.build_tag }}
-          role_arn: arn:aws:iam::123456789:role/github-actions-qa
+  qa-destroy:
+    name: "QA: Destroy"
+    needs: [qa-deploy, qa-test]
+    if: always()
+    uses: ./.github/workflows/terraform-base.yaml
+    with:
+      directory: ./qa
+      environment: qa
+      operation: destroy
+      build_tag: ${{ github.event.inputs.build_tag }}
+      role_arn: arn:aws:iam::123456789:role/github-actions-qa
 
   prod-plan:
-    needs: qa-ephemeral
-    runs-on: ubuntu-latest
-    uses: ./.github/workflows/terraform-base.yml
+    needs: qa-test
+    uses: ./.github/workflows/terraform-base.yaml
     with:
       directory: ./production
       environment: prod
@@ -52,9 +55,8 @@ jobs:
 
   prod-apply:
     needs: prod-plan
-    runs-on: ubuntu-latest
     environment: production
-    uses: ./.github/workflows/terraform-base.yml
+    uses: ./.github/workflows/terraform-base.yaml
     with:
       directory: ./production
       environment: production
