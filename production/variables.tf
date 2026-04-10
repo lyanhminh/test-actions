@@ -1,7 +1,11 @@
 variable "text" {
-  default = "On ECS"
+  type = string
 }
 
 variable "build_tag" {
-  default = "SHA:12345"
+  type = string
+}
+
+variable "environment" {
+  type = string
 }

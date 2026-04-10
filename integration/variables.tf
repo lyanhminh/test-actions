@@ -1,7 +1,11 @@
 variable "text" {
-  default = "nelly on ecs"
+  type = string
 }
 
 variable "build_tag" {
-  default = "latest"
+  type = string
+}
+
+variable "environment" {
+  type = string
 }
