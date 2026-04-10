@@ -27,13 +27,9 @@ permissions:
 
 jobs:
   qa-test:
-    name: "Test Release: ${{ inputs.build_tag }} with Infra Module Ref: ${{ inputs.module_ref }}"
+    name: "Prepare: ${{ inputs.build_tag }} with Infra Module Ref: ${{ inputs.module_ref }}"
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
-    defaults:
-      run:
-        working-directory: ./qa
 
     steps:
       - name: Checkout Live Config
@@ -55,25 +51,39 @@ jobs:
           mv .temp_modules/modules modules
           rm -rf .temp_modules
 
-      - name: Deploy Ephemeral QA
-        uses: ./.github/workflows/terraform-base.yml
-        with:
-          directory: ./qa
-          environment: qa
-          workspace: qa-${{ github.run_id }}
-          build_tag: ${{ inputs.build_tag }}
-          operation: apply
-          role_arn: arn:aws:iam::123456789:role/github-actions-qa
+  deploy-qa:
+    name: "Deploy Ephemeral QA"
+    needs: qa-test
+    uses: ./.github/workflows/tf-base.yaml
+    with:
+      directory: ./qa
+      environment: qa
+      workspace: qa-${{ github.run_id }}
+      build_tag: ${{ inputs.build_tag }}
+      operation: apply
+      role_arn: arn:aws:iam::123456789:role/github-actions-qa
 
+  smoke-tests:
+    name: "Run Smoke Tests"
+    needs: deploy-qa
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./qa
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Run Smoke Tests
-        run: ./automated-tests/endpoint-checker.sh qa 
+        run: ./automated-tests/endpoint-checker.sh qa
 
-      - name: Cleanup QA
-        if: success() || failure() # TODO: change to always()
-        uses: ./.github/workflows/terraform-base.yml
-        with:
-          directory: ./qa
-          environment: qa
-          workspace: qa-${{ github.run_id }}
-          operation: destroy
-          role_arn: arn:aws:iam::123456789:role/github-actions-qa
+  cleanup-qa:
+    name: "Cleanup QA"
+    needs: [deploy-qa, smoke-tests]
+    if: success() || failure() # TODO: change to always()
+    uses: ./.github/workflows/tf-base.yaml
+    with:
+      directory: ./qa
+      environment: qa
+      workspace: qa-${{ github.run_id }}
+      operation: destroy
+      role_arn: arn:aws:iam::123456789:role/github-actions-qa
