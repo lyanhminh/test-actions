@@ -10,7 +10,7 @@ on:
 jobs:
   qa-deploy:
     name: "QA: Deploy"
-    uses: ./.github/workflows/terraform-base.yaml
+    uses: ./.github/workflows/tf-base.yaml
     with:
       directory: ./qa
       environment: qa
@@ -35,7 +35,7 @@ jobs:
     name: "QA: Destroy"
     needs: [qa-deploy, qa-test]
     if: always()
-    uses: ./.github/workflows/terraform-base.yaml
+    uses: ./.github/workflows/tf-base.yaml
     with:
       directory: ./qa
       environment: qa
@@ -45,7 +45,7 @@ jobs:
 
   prod-plan:
     needs: qa-test
-    uses: ./.github/workflows/terraform-base.yaml
+    uses: ./.github/workflows/tf-base.yaml
     with:
       directory: ./production
       environment: prod
@@ -55,7 +55,7 @@ jobs:
 
   prod-apply:
     needs: prod-plan
-    uses: ./.github/workflows/terraform-base.yaml
+    uses: ./.github/workflows/tf-base.yaml
     with:
       directory: ./production
       environment: production
