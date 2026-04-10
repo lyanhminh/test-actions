@@ -1,5 +1,5 @@
 variable "text" {
-  default = "olly on ecs"
+  default = "On ECS"
 }
 
 variable "build_tag" {

@@ -1,3 +1,7 @@
 variable "text" {
-  default = "jerry on ecs"
+  default = "On ECS"
+}
+
+variable "build_tag" {
+  type = string
 }
