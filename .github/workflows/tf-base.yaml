@@ -68,5 +68,5 @@ jobs:
           elif [ "${{ inputs.operation }}" == "apply" ]; then
             terraform apply -auto-approve -var="build_tag=${{ inputs.build_tag }}"
           elif [ "${{ inputs.operation }}" == "destroy" ]; then
-            terraform destroy -auto-approve
+            terraform destroy -auto-approve -var="build_tag=${{ inputs.build_tag }}"
           fi
