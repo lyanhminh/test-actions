@@ -41,6 +41,7 @@ jobs:
 
   prod-plan:
     needs: qa-ephemeral
+    runs-on: ubuntu-latest
     uses: ./.github/workflows/terraform-base.yml
     with:
       directory: ./production
@@ -51,6 +52,7 @@ jobs:
 
   prod-apply:
     needs: prod-plan
+    runs-on: ubuntu-latest
     environment: production
     uses: ./.github/workflows/terraform-base.yml
     with:
