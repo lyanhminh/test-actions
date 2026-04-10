@@ -28,7 +28,6 @@ permissions:
 jobs:
   deploy-qa:
     name: "Deploy Ephemeral QA"
-    needs: qa-test
     uses: ./.github/workflows/tf-base.yaml
     secrets: inherit
     with:
