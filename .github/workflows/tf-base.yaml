@@ -12,7 +12,7 @@ on:
       build_tag:
         required: true
         type: string
-      operation: # "plan-only" or "apply"
+      operation: # "plan-only", "apply", or "destroy"
         required: true
         type: string
       role_arn:
@@ -66,7 +66,7 @@ jobs:
           if [ "${{ inputs.operation }}" == "plan-only" ]; then
             terraform plan -out=tfplan
           elif [ "${{ inputs.operation }}" == "apply" ]; then
-            terraform apply -auto-approve 
+            terraform apply -auto-approve -var="build_tag=${{ inputs.build_tag }}"
           elif [ "${{ inputs.operation }}" == "destroy" ]; then
             terraform destroy -auto-approve
           fi
