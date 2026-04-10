@@ -11,6 +11,7 @@ jobs:
   qa-deploy:
     name: "QA: Deploy"
     uses: ./.github/workflows/tf-base.yaml
+    secrets: inherit
     with:
       directory: ./qa
       environment: qa
@@ -36,6 +37,7 @@ jobs:
     needs: [qa-deploy, qa-test]
     if: always()
     uses: ./.github/workflows/tf-base.yaml
+    secrets: inherit
     with:
       directory: ./qa
       environment: qa
@@ -46,6 +48,7 @@ jobs:
   prod-plan:
     needs: qa-test
     uses: ./.github/workflows/tf-base.yaml
+    secrets: inherit
     with:
       directory: ./production
       environment: prod
@@ -56,6 +59,7 @@ jobs:
   prod-apply:
     needs: prod-plan
     uses: ./.github/workflows/tf-base.yaml
+    secrets: inherit
     with:
       directory: ./production
       environment: production

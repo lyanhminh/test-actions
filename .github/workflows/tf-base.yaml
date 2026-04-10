@@ -18,6 +18,9 @@ on:
       role_arn:
         required: true
         type: string
+    secrets:
+      GH_PAT:
+        required: true
 
 jobs:
   run-terraform:
