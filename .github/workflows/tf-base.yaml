@@ -64,9 +64,9 @@ jobs:
       - name: Terraform Action
         run: |
           if [ "${{ inputs.operation }}" == "plan-only" ]; then
-            terraform plan -var-file=../tfvars/${{ inputs.environment }}.tfvars -out=tfplan
+            terraform plan -out=tfplan
           elif [ "${{ inputs.operation }}" == "apply" ]; then
-            terraform apply -auto-approve -var-file=../tfvars/${{ inputs.environment }}.tfvars
+            terraform apply -auto-approve 
           elif [ "${{ inputs.operation }}" == "destroy" ]; then
-            terraform destroy -auto-approve -var-file=../tfvars/${{ inputs.environment }}.tfvars
+            terraform destroy -auto-approve
           fi
