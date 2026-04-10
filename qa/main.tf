@@ -3,6 +3,7 @@ module "service" {
 
   environment = "qa"
   text        = var.text
+  build_tag   = var.build_tag
 } 
 
 resource "terraform_data" "test_infra" {

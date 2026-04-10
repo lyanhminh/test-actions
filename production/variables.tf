@@ -3,5 +3,5 @@ variable "text" {
 }
 
 variable "build_tag" {
-  default = "v1.0.0"
+  default = "SHA:12345"
 }

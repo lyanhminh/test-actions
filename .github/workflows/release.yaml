@@ -52,7 +52,6 @@ jobs:
     with:
       directory: ./production
       environment: prod
-      build_tag: ${{ github.event.inputs.build_tag }}
       operation: plan-only
       role_arn: arn:aws:iam::123456789:role/github-actions-prod-plan
 
@@ -63,6 +62,5 @@ jobs:
     with:
       directory: ./production
       environment: production
-      build_tag: ${{ github.event.inputs.build_tag }}
       operation: apply
       role_arn: arn:aws:iam::123456789:role/github-actions-prod-apply
