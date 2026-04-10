@@ -36,7 +36,6 @@ jobs:
     name: "QA: Destroy"
     needs: [qa-deploy, qa-test]
     if: success() || failure()
-    timeout-minutes: 10
     uses: ./.github/workflows/tf-base.yaml
     secrets: inherit
     with:
