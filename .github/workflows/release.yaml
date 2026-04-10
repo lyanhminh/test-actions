@@ -32,10 +32,18 @@ jobs:
       operation: plan-only
       role_arn: arn:aws:iam::123456789:role/github-actions-prod-plan
 
+  prod-approval:
+    name: "Production: Approval Gate"
+    needs: prod-plan
+    runs-on: ubuntu-latest
+    environment: production # manual gate
+    steps:
+      - name: Approve Production Deployment
+        run: echo "Production deployment approved"
+
   prod-apply:
     name: "Production: Apply"
-    needs: prod-plan
-    environment: production # manual gate
+    needs: prod-approval
     uses: ./.github/workflows/tf-base.yaml
     secrets: inherit
     with:
