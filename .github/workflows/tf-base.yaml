@@ -19,7 +19,7 @@ on:
         required: true
         type: string
     secrets:
-      GH_PAT:
+      GH_PAT: # demo only, replace with GitHub App short-lived credentials in production
         required: true
 
 jobs:
@@ -51,7 +51,6 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan \
-            -var-file=../tfvars/${{ inputs.environment }}.tfvars \
             -var="build_tag=${{ inputs.build_tag }}" \
             -out=tfplan
 
