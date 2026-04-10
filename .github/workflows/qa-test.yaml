@@ -55,6 +55,7 @@ jobs:
     name: "Deploy Ephemeral QA"
     needs: qa-test
     uses: ./.github/workflows/tf-base.yaml
+    secrets: inherit
     with:
       directory: ./qa
       environment: qa
@@ -78,6 +79,7 @@ jobs:
     needs: [deploy-qa, smoke-tests]
     if: success() || failure() # TODO: change to always()
     uses: ./.github/workflows/tf-base.yaml
+    secrets: inherit
     with:
       directory: ./qa
       environment: qa
