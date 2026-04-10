@@ -9,7 +9,8 @@ on:
       workspace: { required: false, type: string, default: "default" }
       role_arn: { required: true, type: string }
     outputs:
-      plan_id: { value: ${{ jobs.run.outputs.plan_id }} }
+      plan_id:
+        value: ${{ jobs.run.outputs.plan_id }}
 
 jobs:
   run:
