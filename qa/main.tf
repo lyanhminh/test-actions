@@ -4,3 +4,9 @@ module "service" {
   environment = "qa"
   text        = var.text
 } 
+
+resource "terraform_data" "test_infra" {
+  provisioner "local-exec" {
+    command = "echo  'Extra testing infrastructure for QA environment'"
+  }
+}
