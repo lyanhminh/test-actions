@@ -67,9 +67,6 @@ jobs:
     name: "Run Smoke Tests"
     needs: deploy-qa
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./qa
     steps:
       - name: Checkout
         uses: actions/checkout@v4
