@@ -60,7 +60,7 @@ jobs:
       environment: qa
       workspace: qa-${{ github.run_id }}
       build_tag: ${{ inputs.build_tag }}
-      operation: apply
+      operation: apply-direct
       role_arn: arn:aws:iam::123456789:role/github-actions-qa
 
   smoke-tests:

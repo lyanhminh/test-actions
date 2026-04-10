@@ -34,16 +34,25 @@ jobs:
           terraform workspace select ${{ inputs.workspace }} || terraform workspace new ${{ inputs.workspace }}
 
       - name: Terraform Plan
+        env:
+          TF_INPUT: "false"
+          TF_IN_AUTOMATION: "true"
+          BUILD_TAG: ${{ inputs.build_tag }}  
         if: inputs.operation == 'plan-only' || inputs.operation == 'apply'
         run: |
           VAR_FILE="${{ github.workspace }}/tfvars/${{ inputs.environment }}.tfvars"
-          ARGS="-input=false -no-color -var-file=$VAR_FILE"
-          
-          if [ -n "${{ inputs.build_tag }}" ]; then
-            ARGS="$ARGS -var='build_tag=${{ inputs.build_tag }}'"
+
+          ARGS=(
+            -input=false
+            -no-color
+            -var-file="$VAR_FILE"
+          )
+
+          if [ -n "$BUILD_TAG" ]; then
+            ARGS+=(-var "build_tag=$BUILD_TAG")
           fi
 
-          terraform plan $ARGS -out=tfplan
+          terraform plan -out=tfplan "${ARGS[@]}"
 
       - name: Upload Plan Artifact
         if: inputs.operation == 'plan-only'
@@ -65,11 +74,44 @@ jobs:
         run: terraform apply -input=false -auto-approve tfplan
 
       - name: Terraform Destroy
+        env:
+          TF_INPUT: "false"
+          TF_IN_AUTOMATION: "true"
+          BUILD_TAG: ${{ inputs.build_tag }}  
         if: inputs.operation == 'destroy'
         run: |
           VAR_FILE="${{ github.workspace }}/tfvars/${{ inputs.environment }}.tfvars"
-          ARGS="-input=false -no-color -var-file=$VAR_FILE"
-          if [ -n "${{ inputs.build_tag }}" ]; then
-             ARGS="$ARGS -var='build_tag=${{ inputs.build_tag }}'"
+
+          ARGS=(
+            -input=false
+            -no-color
+            -var-file="$VAR_FILE"
+          )
+
+          if [ -n "${BUILD_TAG}" ]; then
+            ARGS+=(-var "build_tag=$BUILD_TAG")
           fi
-          terraform destroy -auto-approve $ARGS
+
+          terraform destroy -auto-approve "${ARGS[@]}"
+
+
+      - name: Terraform Apply Direct
+        if: inputs.operation == 'apply-direct'
+        env:
+          TF_INPUT: "false"
+          TF_IN_AUTOMATION: "true"
+          BUILD_TAG: ${{ inputs.build_tag }}
+        run: |
+          VAR_FILE="${{ github.workspace }}/tfvars/${{ inputs.environment }}.tfvars"
+
+          ARGS=(
+            -input=false
+            -no-color
+            -var-file="$VAR_FILE"
+          )
+
+          if [ -n "$BUILD_TAG" ]; then
+            ARGS+=(-var "build_tag=$BUILD_TAG")
+          fi
+
+          terraform apply -auto-approve "${ARGS[@]}"
