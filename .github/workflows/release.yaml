@@ -38,6 +38,7 @@ jobs:
     needs: prod-plan
     runs-on: ubuntu-latest
     environment: production # manual gate
+    secrets: inherit
     steps:
       - name: Approve Production Deployment
         run: echo "Production deployment approved"
