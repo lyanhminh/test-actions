@@ -43,9 +43,9 @@ jobs:
         if: inputs.module_ref != '' && inputs.module_ref != github.ref_name
         run: |
           echo "Overwriting local modules with version from ${{ inputs.module_ref }}"
-          rm -rf modules
-          mv .temp_modules/modules modules
-          rm -rf .temp_modules
+          rm -rf ${{ github.workspace }}/modules
+          mv ${{ github.workspace }}/.temp_modules/modules ${{ github.workspace }}/modules
+          rm -rf ${{ github.workspace }}/.temp_modules
         
       #      - uses: aws-actions/configure-aws-credentials@v4
       #        with:
