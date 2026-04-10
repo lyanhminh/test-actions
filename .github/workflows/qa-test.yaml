@@ -1,0 +1,79 @@
+name: "QA Quality Gate"
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_tag:
+        description: 'Application image tag'
+        required: true
+        type: string
+      module_ref:
+        description: 'Git ref (tag/branch/SHA) from infrastructure module project'
+        required: false
+        type: string
+        default: 'main'
+  workflow_call:
+    inputs:
+      build_tag:
+        type: string
+      module_ref:
+        required: false
+        type: string
+        default: 'main'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  qa-test:
+    name: "Test Release: ${{ inputs.build_tag }} with Infra Module Ref: ${{ inputs.module_ref }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: ./qa
+
+    steps:
+      - name: Checkout Live Config
+        uses: actions/checkout@v4
+
+      - name: Sync Infrastructure Modules
+        if: github.event.inputs.module_ref != '' && github.event.inputs.module_ref != 'main'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.module_ref }}
+          path: .temp_modules
+          sparse-checkout: modules
+
+      - name: Module Swap
+        if: github.event.inputs.module_ref != '' && github.event.inputs.module_ref != 'main'
+        run: |
+          echo "Overwriting local modules with version from ${{ inputs.module_ref }}"
+          rm -rf modules
+          mv .temp_modules/modules modules
+          rm -rf .temp_modules
+
+      - name: Deploy Ephemeral QA
+        uses: ./.github/workflows/terraform-base.yml
+        with:
+          directory: ./qa
+          environment: qa
+          workspace: qa-${{ github.run_id }}
+          build_tag: ${{ inputs.build_tag }}
+          operation: apply
+          role_arn: arn:aws:iam::123456789:role/github-actions-qa
+
+      - name: Run Smoke Tests
+        run: ./automated-tests/endpoint-checker.sh qa 
+
+      - name: Cleanup QA
+        if: success() || failure() # TODO: change to always()
+        uses: ./.github/workflows/terraform-base.yml
+        with:
+          directory: ./qa
+          environment: qa
+          workspace: qa-${{ github.run_id }}
+          operation: destroy
+          role_arn: arn:aws:iam::123456789:role/github-actions-qa

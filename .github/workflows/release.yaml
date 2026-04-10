@@ -8,55 +8,25 @@ on:
         default: 'latest'
 
 jobs:
-  qa-deploy:
-    name: "QA: Deploy"
-    uses: ./.github/workflows/tf-base.yaml
-    secrets: inherit
-    with:
-      directory: ./qa
-      environment: qa
-      operation: apply
-      build_tag: ${{ github.event.inputs.build_tag }}
-      role_arn: arn:aws:iam::123456789:role/github-actions-qa
-
   qa-test:
-    name: "QA: Run Smoke Tests"
-    needs: qa-deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Run Smoke Tests
-        run: |
-          chmod +x ./automated-tests/endpoint-checker.sh
-          ./automated-tests/endpoint-checker.sh qa
-
-  qa-destroy:
-    name: "QA: Destroy"
-    needs: [qa-deploy, qa-test]
-    if: success() || failure()
-    uses: ./.github/workflows/tf-base.yaml
+    uses: ./.github/workflows/qa-test.yaml
     secrets: inherit
-    with:
-      directory: ./qa
-      environment: qa
-      operation: destroy
-      build_tag: ${{ github.event.inputs.build_tag }}
-      role_arn: arn:aws:iam::123456789:role/github-actions-qa
 
   prod-plan:
+    name: "Production: Plan"
     needs: qa-test
     uses: ./.github/workflows/tf-base.yaml
     secrets: inherit
     with:
       directory: ./production
-      environment: prod
+      environment: production
       operation: plan-only
       role_arn: arn:aws:iam::123456789:role/github-actions-prod-plan
 
   prod-apply:
+    name: "Production: Apply"
     needs: prod-plan
+    environment: production # manual gate
     uses: ./.github/workflows/tf-base.yaml
     secrets: inherit
     with:
