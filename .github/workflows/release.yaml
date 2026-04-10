@@ -1,6 +1,7 @@
 name: Release Orchestration
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [ main ]
     # We only want to run this when code changes in these paths
