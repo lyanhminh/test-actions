@@ -1,16 +1,25 @@
 name: Release Orchestration
 
 on:
-  workflow_dispatch:
-    inputs:
-      build_tag:
-        required: true
-        default: 'latest'
+  pull_request:
+    branches: [ main ]
+    # We only want to run this when code changes in these paths
+    paths:
+      - 'qa/**'
+      - 'production/**'
+      - 'tfvars/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
 
 jobs:
   qa-test:
     uses: ./.github/workflows/qa-test.yaml
     secrets: inherit
+    with:
+      module_ref: ${{ github.head_ref }} # Pass the branch name of the PR to the QA test workflow
 
   prod-plan:
     name: "Production: Plan"
@@ -32,5 +41,20 @@ jobs:
     with:
       directory: ./production
       environment: production
+      workspace: default
       operation: apply
       role_arn: arn:aws:iam::123456789:role/github-actions-prod-apply
+
+  automerge:
+    needs: prod-apply
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Auto-merge PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Production Apply successful. Merging PR..."
+          gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch

@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Sync Infrastructure Modules
-        if: github.event.inputs.module_ref != '' && github.event.inputs.module_ref != 'main'
+        if: inputs.module_ref != '' && inputs.module_ref != github.ref_name
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.module_ref }}
@@ -44,7 +44,7 @@ jobs:
           sparse-checkout: modules
 
       - name: Module Swap
-        if: github.event.inputs.module_ref != '' && github.event.inputs.module_ref != 'main'
+        if: inputs.module_ref != '' && inputs.module_ref != github.ref_name
         run: |
           echo "Overwriting local modules with version from ${{ inputs.module_ref }}"
           rm -rf modules
