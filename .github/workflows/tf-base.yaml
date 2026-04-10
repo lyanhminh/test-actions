@@ -36,7 +36,8 @@ jobs:
       - name: Terraform Plan
         if: inputs.operation == 'plan-only' || inputs.operation == 'apply'
         run: |
-          ARGS="-input=false -no-color -var-file=../tfvars/${{ inputs.environment }}.tfvars"
+          VAR_FILE="${{ github.workspace }}/tfvars/${{ inputs.environment }}.tfvars"
+          ARGS="-input=false -no-color -var-file=$VAR_FILE"
           
           if [ -n "${{ inputs.build_tag }}" ]; then
             ARGS="$ARGS -var='build_tag=${{ inputs.build_tag }}'"
@@ -66,7 +67,8 @@ jobs:
       - name: Terraform Destroy
         if: inputs.operation == 'destroy'
         run: |
-          ARGS="-input=false -no-color -var-file=../tfvars/${{ inputs.environment }}.tfvars"
+          VAR_FILE="${{ github.workspace }}/tfvars/${{ inputs.environment }}.tfvars"
+          ARGS="-input=false -no-color -var-file=$VAR_FILE"
           if [ -n "${{ inputs.build_tag }}" ]; then
              ARGS="$ARGS -var='build_tag=${{ inputs.build_tag }}'"
           fi
