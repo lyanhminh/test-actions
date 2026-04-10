@@ -41,7 +41,7 @@ jobs:
 
       - name: Workspace Selection
         run: |
-          terraform workspace select ${{ inputs.workspace }} || terraform workspace new ${{ inputs.workspace }}
+          terraform workspace select ${{ inputs.workspace }} 2>/dev/null || terraform workspace new ${{ inputs.workspace }}
 
       - name: Terraform Plan
         env:
