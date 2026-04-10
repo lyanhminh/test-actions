@@ -26,31 +26,6 @@ permissions:
   id-token: write
 
 jobs:
-  qa-test:
-    name: "Prepare: ${{ inputs.build_tag }} with Infra Module Ref: ${{ inputs.module_ref }}"
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout Live Config
-        uses: actions/checkout@v4
-
-      - name: Sync Infrastructure Modules
-        if: inputs.module_ref != '' && inputs.module_ref != github.ref_name
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.module_ref }}
-          path: .temp_modules
-          sparse-checkout: modules
-
-      - name: Module Swap
-        if: inputs.module_ref != '' && inputs.module_ref != github.ref_name
-        run: |
-          echo "Overwriting local modules with version from ${{ inputs.module_ref }}"
-          rm -rf modules
-          mv .temp_modules/modules modules
-          rm -rf .temp_modules
-
   deploy-qa:
     name: "Deploy Ephemeral QA"
     needs: qa-test
