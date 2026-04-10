@@ -1,5 +1,5 @@
 resource "terraform_data" "replacement" {
   provisioner "local-exec" {
-    command = "echo 'This was EKS ${var.environment}' environment but now we are migrating toe EKS running build_tag ${var.build_tag}'"
+    command = "echo 'This is the ECS ${var.environment}' environment saying, '${var.text}' running with build tag '${var.build_tag}'"
   }
 }
