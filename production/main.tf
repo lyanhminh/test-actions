@@ -3,4 +3,5 @@ module "service" {
 
   environment = "production"
   text        = var.text
+  build_tag   = var.build_tag
 } 

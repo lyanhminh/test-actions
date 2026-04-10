@@ -1,0 +1,61 @@
+name: Release Orchestration
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_tag:
+        required: true
+        default: 'latest'
+
+jobs:
+  qa-ephemeral:
+    name: "QA: Apply -> Test -> Destroy"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy QA
+        uses: ./.github/workflows/terraform-base.yml
+        with:
+          directory: ./qa
+          environment: qa
+          operation: apply
+          build_tag: ${{ github.event.inputs.build_tag }}
+          role_arn: arn:aws:iam::123456789:role/github-actions-qa
+
+      - name: Run Smoke Tests
+        run: |
+          chmod +x ./automated-tests/endpoint-checker.sh
+          ./automated-tests/endpoint-checker.sh qa
+
+      - name: Destroy QA
+        if: always()
+        uses: ./.github/workflows/terraform-base.yml
+        with:
+          directory: ./qa
+          environment: qa
+          operation: destroy
+          build_tag: ${{ github.event.inputs.build_tag }}
+          role_arn: arn:aws:iam::123456789:role/github-actions-qa
+
+  prod-plan:
+    needs: qa-ephemeral
+    uses: ./.github/workflows/terraform-base.yml
+    with:
+      directory: ./production
+      environment: prod
+      build_tag: ${{ github.event.inputs.build_tag }}
+      operation: plan-only
+      role_arn: arn:aws:iam::123456789:role/github-actions-prod-plan
+
+  prod-apply:
+    needs: prod-plan
+    environment: production
+    uses: ./.github/workflows/terraform-base.yml
+    with:
+      directory: ./production
+      environment: production
+      build_tag: ${{ github.event.inputs.build_tag }}
+      operation: apply
+      role_arn: arn:aws:iam::123456789:role/github-actions-prod-apply
