@@ -64,7 +64,7 @@ jobs:
       - name: Terraform Action
         run: |
           if [ "${{ inputs.operation }}" == "plan-only" ]; then
-            terraform plan -out=tfplan
+            terraform plan -out=tfplan -var="build_tag=${{ inputs.build_tag }}"
           elif [ "${{ inputs.operation }}" == "apply" ]; then
             terraform apply -auto-approve -var="build_tag=${{ inputs.build_tag }}"
           elif [ "${{ inputs.operation }}" == "destroy" ]; then
